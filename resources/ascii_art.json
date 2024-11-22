@@ -1,0 +1,14 @@
+{
+    "MISSING": {
+        "default": "DEFAULT ART MISSING",
+        "action": "ACTION ART MISSING"
+    },
+    "bear": {
+        "default": "resources/bear.txt",
+        "action": "resources/bear.txt"
+    },
+    "mall_cop": {
+        "default": "resources/mallcop.txt",
+        "action": "resources/mallcop.txt"
+    }
+}
