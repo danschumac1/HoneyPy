@@ -31,7 +31,11 @@ class BattleStage(Enum):
     SELECT_SKILL_TYPE = 3
     SELECT_SKILL = 4
     SELECT_TARGET = 5
-
+class GameState(Enum):
+    MAIN_MENU = 1
+    OVERWORLD = 2
+    BATTLE = 3
+    QUIT = 4
 #endregion
 #region DATACLASSES
 @dataclass
@@ -80,6 +84,7 @@ class Item:
             damage=self.damage,
             roll_modifier=self.roll_modifier,
             target=self.target,
+            description=self.description
         )
 
     def __repr__(self):
@@ -88,12 +93,21 @@ class Item:
 
 @dataclass
 class ChoiceManager:
-    stage: BattleStage
-    selected_skill_item: Union['Skill', 'Item', None]     
-    selected_skill_type: Union['Base_Power', None]
-    selected_skill: Union['Skill', None]
-    selected_item: Union['Item', None]
-    selected_target: Union[List['Creature2'], None]
+    stage: BattleStage = BattleStage.SELECT_SKILL_ITEM
+    selected_skill_item: Union['Skill', 'Item', None] = None  
+    selected_skill_type: Union['Base_Power', None] = None
+    selected_skill: Union['Skill', None] = None
+    selected_item: Union['Item', None] = None
+    selected_target: Union[List['Creature2'], None] = None
+    def reset(self):
+        """Resets the ChoiceManager instance to its default state."""
+        self.stage = BattleStage.SELECT_SKILL_ITEM
+        self.selected_skill_item = None
+        self.selected_skill_type = None
+        self.selected_skill = None
+        self.selected_item = None
+        self.selected_target = None
+
 
 #endregion
 #region HELPER FUNCTIONS

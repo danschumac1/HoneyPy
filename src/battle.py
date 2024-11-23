@@ -8,38 +8,13 @@ python ./src/battle_layout
 import os
 from typing import List
 from utils.buttons_etc import DiceRoller
-from utils.dclasses2 import BattleStage, ChoiceManager, Creature2, Skill_Item
+from utils.dclasses2 import BattleStage, ChoiceManager, Creature2, GameState, Skill_Item
 from utils.window_config import (
     PART_BOX, EART_BOX, CHOICE_BOX, 
     BL_BOX, PS_BOX, ES_BOX, DI_BOX, XYWH
     )
-from utils.creatures import bear_criminal, mall_cop
-# from utils.combat_manager import display_combat_stats, enemy_turn, player_turn, combat_over
-# from utils.logging import log_it
 import raylibpy as rl
-import json
 
-params = json.loads(open("./resources/global_params.json").read())
-WIDTH, HEIGHT = params["WIDTH"], params["HEIGHT"]
-rl.init_window(WIDTH, HEIGHT, "Battle Layout")
-# font_path = os.path.join(os.getcwd(), "resources", "font", "basis33.ttf")
-# font = rl.load_font(font_path)
-
-rl.set_target_fps(60)
-
-pcs = [bear_criminal]
-npcs = [mall_cop, mall_cop, mall_cop]
-player_turn = True
-
-for player in pcs:
-    player.set_up_dice_roller(
-        dice_roller=DiceRoller(
-            x = DI_BOX.x + DI_BOX.width // 2,
-            y = DI_BOX.y + DI_BOX.height // 2,
-            size=DI_BOX.width // 2,
-            roll_duration=0.5
-            )
-        )
 def scale_text_to_fit_box(text, box, font, font_size):
     """
     Scale down the text size if it doesn't fit within the box.
@@ -62,7 +37,6 @@ def scale_text_to_fit_box(text, box, font, font_size):
     
     return font_size
 
-
 def pad_ascii_art(ascii_art: str) -> str:
     """Pad each line of ASCII art to match the longest line length."""
     lines = ascii_art.splitlines()
@@ -72,8 +46,7 @@ def pad_ascii_art(ascii_art: str) -> str:
     padded_lines = [line.ljust(max_len) for line in lines]
     return '\n'.join(padded_lines)
 
-
-def draw_ascii_art_box(art, font, box, font_size=15, color=rl.WHITE):
+def draw_ascii_art_box(ascii_art:str, font: rl.Font, box: rl.Rectangle, color=rl.WHITE, font_size=20):
     """
     Draw ASCII art inside a box, centering and scaling it.
     Handles even/odd longest line length and shrinks font size if necessary.
@@ -83,7 +56,7 @@ def draw_ascii_art_box(art, font, box, font_size=15, color=rl.WHITE):
     rl.draw_rectangle_rec(rec, rl.BLACK)
     
     # Pad the ASCII art to ensure consistent centering
-    padded_art = pad_ascii_art(art)
+    padded_art = pad_ascii_art(ascii_art)
 
     # Scale font size to fit the box
     font_size = scale_text_to_fit_box(padded_art, box, font, font_size)
@@ -108,7 +81,10 @@ def draw_ascii_art_box(art, font, box, font_size=15, color=rl.WHITE):
         rl.draw_text_ex(font, line, rl.Vector2(start_x, line_y), font_size, 2, color)
 
 def draw_choice_box(
-        choicemanager:ChoiceManager, pc: Creature2 = pcs[0]):
+        choicemanager:ChoiceManager, 
+        pc: Creature2,
+        npcs: List[Creature2]
+        ):
     """Handle the chained choice selection for skills or items."""
     # Draw the initial choice box
     choice_rect = rl.Rectangle(
@@ -152,73 +128,67 @@ def draw_choice_box(
 
     # Default return if no selection
     return choicemanager
-battle_log = []     # List of messages for the battle log
-scroll_offset = 0   # Tracks scroll position
-line_spacing = 4    # Space between lines
-font_size = 15      # Default font size for battle log text
 
-def add_battle_log_message(message):
-    """Add a new message to the battle log."""
-    global battle_log
-    battle_log.append(message)
-
-def draw_battle_log_box():
+def draw_battle_log_box(battle_log, line_spacing=4, font_size=15):
     """Draw the battle log box showing only the last messages that fit."""
-    global battle_log
-
     # Define the battle log box
-    battle_log_box = rl.Rectangle(
-        BL_BOX.x, BL_BOX.y, BL_BOX.width, BL_BOX.height
-    )
-    # draw grey outline
-    # Define the thickness of the outline
     outline_thickness = 30
+
+    battle_log_box = rl.Rectangle(
+        BL_BOX.x, 
+        BL_BOX.y , 
+        BL_BOX.width,
+        BL_BOX.height - 8 * outline_thickness
+    )
+
+    # Define the thickness of the outline
 
     # Adjust the battle_log_box dimensions to fit within the outline
     inner_battle_log_box = rl.Rectangle(
-        BL_BOX.x + outline_thickness, 
-        BL_BOX.y + outline_thickness, 
-        BL_BOX.width - 2 * outline_thickness, 
-        BL_BOX.height - 2 * outline_thickness * 6
+        BL_BOX.x + outline_thickness,
+        BL_BOX.y + outline_thickness,
+        BL_BOX.width - 2 * outline_thickness,
+        BL_BOX.height - 2 * outline_thickness
     )
 
-    # Draw the inner rectangle AFTER the outline
-    rl.draw_rectangle_lines_ex(
-        rl.Rectangle(
-            BL_BOX.x, 
-            BL_BOX.y, 
-            BL_BOX.width, 
-            BL_BOX.height //2
-        ), 
-        outline_thickness, 
-        rl.LIGHTGRAY
-    )
+    # Draw the outline
+
+    # Draw the inner rectangle
     rl.draw_rectangle_rec(inner_battle_log_box, rl.BLACK)
-
+    rl.draw_rectangle_lines_ex(
+        battle_log_box, outline_thickness, rl.LIGHTGRAY
+    )
     # Calculate how many lines can fit in the box
-    lines_visible = (BL_BOX.height - 2 * outline_thickness) // (font_size + line_spacing) // 2
+    lines_visible = int(inner_battle_log_box.height // (font_size + line_spacing)//2.1) 
 
     # Get the last messages that fit in the box
-    visible_messages = battle_log[-lines_visible+1:]
+    visible_messages = battle_log[-lines_visible:]
 
     # Render the visible messages
     for i, message in enumerate(visible_messages):
-        # if it is the most recent message, draw it in green
-        line_y = (BL_BOX.y + BL_BOX.height//100 + outline_thickness) + i * (font_size + line_spacing)
-        if message == visible_messages[-1]:
-            rl.draw_text(message, BL_BOX.x + outline_thickness + 10, BL_BOX.y + outline_thickness + i * (font_size + line_spacing), font_size, rl.GREEN)
+        line_y = inner_battle_log_box.y + i * (font_size + line_spacing)
+        # Render the most recent message in green
+        if i == len(visible_messages) - 1:
+            color = rl.GREEN
         else:
-            rl.draw_text(message, BL_BOX.x + outline_thickness + 10, line_y, font_size, rl.WHITE)
+            color = rl.WHITE
+        rl.draw_text(
+            message,
+            inner_battle_log_box.x + 10,
+            line_y,
+            font_size,
+            color
+        )
 
 ###########################################################################
-def draw_dice_box(pc:Creature2=pcs[0]):
+def draw_dice_box(pc:Creature2):
     dice_box = rl.Rectangle(
         DI_BOX.x, DI_BOX.y, DI_BOX.width, DI_BOX.height
     )
     rl.draw_rectangle_rec(dice_box, rl.LIGHTGRAY)
     pc.dice_roller.update_and_draw()
 
-def draw_player_stats_box(pc:Creature2=pcs[0]):
+def draw_player_stats_box(pc:Creature2):
     player_stats_box = rl.Rectangle(
         PS_BOX.x, PS_BOX.y, PS_BOX.width, PS_BOX.height
     )
@@ -232,7 +202,7 @@ def draw_player_stats_box(pc:Creature2=pcs[0]):
         height=PS_BOX.height - 2 * padding
     )
 
-def draw_enemy_stats_box(npcs:List[Creature2]=npcs):
+def draw_enemy_stats_box(npcs:List[Creature2]):
     enemy_stats_box = rl.Rectangle(
         ES_BOX.x, ES_BOX.y, ES_BOX.width, ES_BOX.height
     )
@@ -246,64 +216,64 @@ def draw_enemy_stats_box(npcs:List[Creature2]=npcs):
         height=(ES_BOX.height // 3) - 2 * padding           # up to 3 enemies
         )
 
-def reset_choice_manager():
-    return ChoiceManager(
-        stage=BattleStage.SELECT_SKILL_ITEM,
-        selected_skill_item=None,
-        selected_skill_type=None,
-        selected_skill=None,
-        selected_item=None,
-        selected_target=None
-    )
-
 # Main loop
-def battle():
+def battle(gs: GameState, pcs:List[Creature2], npcs:List[Creature2]):
+    for player in pcs:
+        player.set_up_dice_roller(
+            dice_roller=DiceRoller(
+                x = DI_BOX.x + DI_BOX.width // 2,
+                y = DI_BOX.y + DI_BOX.height // 2,
+                size=DI_BOX.width // 2,
+                roll_duration=0.5
+                )
+            )
     i=0
-    player_turn = True
+    player_initiative = True
     font_path = os.path.join(os.getcwd(), "resources", "font", "joystix monospace.otf")
     font = rl.load_font(font_path)
-    choice_manager = reset_choice_manager()
+    choice_manager = ChoiceManager()
+    battle_log = []
 
-    while not rl.window_should_close():
+    while gs == GameState.BATTLE:
         rl.begin_drawing()
-        rl.clear_background(rl.BLACK)
+        # rl.clear_background(rl.BLACK)
 
         # Draw each quadrant independently
         draw_ascii_art_box(
             pcs[0].ascii_art['default'], 
             font,
             PART_BOX, 
-            color=rl.GREEN if player_turn else rl.WHITE
+            color=rl.GREEN if player_initiative else rl.WHITE
             )
         draw_ascii_art_box(
             npcs[0].ascii_art['default'], 
             font,
             EART_BOX, 
-            color=rl.GREEN if not player_turn else rl.WHITE
+            color=rl.GREEN if not player_initiative else rl.WHITE
             )
 
-        draw_player_stats_box()
-        draw_dice_box()
-        draw_enemy_stats_box()
+        draw_player_stats_box(pcs[0])
+        draw_dice_box(pcs[0])
+        draw_enemy_stats_box(npcs)
 
         # TESTING FEATURES
         if rl.is_key_pressed(rl.KEY_SPACE):
             # flip player_turn
-            if player_turn:
-                player_turn = False
+            if player_initiative:
+                player_initiative = False
             else:
-                player_turn = True
+                player_initiative = True
         if rl.is_key_pressed(rl.KEY_Q):
             i+=1
-            add_battle_log_message(f"Player pressed {i}")
+            battle_log.append(f"Player pressed {i}")
         if rl.is_key_pressed(rl.KEY_W):
             pcs[0].roll_dice()
-        choice_manager = draw_choice_box(choice_manager)
-        draw_battle_log_box()
+        choice_manager = draw_choice_box(choice_manager, pcs[0], npcs)
+        draw_battle_log_box(battle_log)
+        # check if the battle is over
+        # ...
 
         rl.end_drawing()
-
-    rl.close_window()
 
 if __name__ == "__main__":
     battle()
