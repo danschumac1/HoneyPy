@@ -1,4 +1,5 @@
-from utils.dclasses2 import Skill, Target
+from utils.dcs import Skill
+from utils.enums import Target
 
 # =============================================================================
 # BEAR SKILLS

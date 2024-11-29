@@ -6,23 +6,26 @@ from typing import List, Tuple, Union
 
 class DiceRoller:
     """A class to handle dice rolling animation with a spinning octagon and random numbers."""
-    def __init__(self, x:int, y:int, size:int, roll_duration:int=1):
+    def __init__(self, x: int, y: int, size: int, roll_duration: int = 1):
         self.x = x
         self.y = y
         self.size = size
         self.angle = 0
         self.number = random.randint(1, 8)
-        self.rolling = False
         self.final_number = None
-        self.start_time = None
         self.roll_duration = roll_duration
         self.cycle_speed = 0.1  # Time interval for changing numbers
-    
+        self.is_rolling = False
+        self.is_finished_rolling = False
+        self.start_time = None
+
     def start_roll(self):
         """Start the dice rolling animation."""
-        self.rolling = True
+        self.is_rolling = True
+        self.is_finished_rolling = False
         self.start_time = time.time()
-        self.cycle_speed = 0.1
+        self.cycle_speed = 0.1  # Reset cycle speed
+        self.number = random.randint(1, 8)  # Initial random number
         self.final_number = None
 
     def draw_octagon(self):
@@ -33,43 +36,47 @@ class DiceRoller:
             num_sides,
             self.size,
             self.angle,
-            rl.RED.fade(.5)
+            rl.RED.fade(0.5)
         )
 
     def update_and_draw(self):
         """Update the dice roller state and draw the spinning octagon with numbers."""
-        if self.rolling:
+        if self.is_rolling:
             # Rotate the octagon
-            self.angle += 10
+            self.angle += 7.5
+
+            # Update time
+            current_time = time.time()
+            elapsed_time = current_time - self.start_time
 
             # Randomly change the number until rolling stops
-            current_time = time.time()
-            if current_time - self.start_time < self.roll_duration:
-                if current_time - self.start_time < self.cycle_speed:
+            if elapsed_time < self.roll_duration:
+                if elapsed_time > self.cycle_speed:
                     self.number = random.randint(1, 8)
                     self.cycle_speed += 0.1  # Slow down gradually
             else:
                 # Rolling is done, finalize the number
-                self.rolling = False
                 self.final_number = self.number
-
+                self.is_rolling = False
+                self.is_finished_rolling = True
+                print(f"Dice rolling finished. Final number: {self.final_number}")
+                
         # Draw the spinning octagon
         self.draw_octagon()
 
         # Draw the current number in the center of the octagon
-        number_text = str(self.number)
+        number_text = str(self.number if self.is_rolling else self.final_number)
         text_width = rl.measure_text(number_text, 40)
         rl.draw_text(number_text, self.x - text_width // 2, self.y - 20, 40, rl.RAYWHITE)
 
-    @property
-    def is_rolling(self):
-        """Check if the dice is still rolling."""
-        return self.rolling
-    
-    @property
-    def result(self) -> Union[int, None]:
-        """Get the final rolled number after rolling is complete."""
-        return self.final_number
+
+    def reset(self):
+        """Reset the dice roller state."""
+        self.is_rolling = False
+        self.is_finished_rolling = False
+        # self.final_number = None
+        # self.number = random.randint(1, 8)  # Reset to a random number
+
 
 def slider(
         x: int, y: int, 
@@ -123,11 +130,6 @@ def slider(
 params = json.loads(open("./resources/global_params.json").read())
 WIDTH, HEIGHT = params["WIDTH"], params["HEIGHT"]
 
-# Pop-up dimensions and position
-pop_up_width = WIDTH // 2
-pop_up_height = HEIGHT // 3
-pop_up_x = (WIDTH - pop_up_width) // 2
-pop_up_y = (HEIGHT - pop_up_height) // 2
 BUTTON_WIDTH = WIDTH // 10
 BUTTON_HEIGHT = HEIGHT // 20
 PADDING = HEIGHT // 75
@@ -208,66 +210,6 @@ class Button:
         """Check if the button is clicked."""
         return self.is_hovered() and rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)
 
-class PopUpWindow:
-    def __init__(self, buttons: List[Button], title: str = "Select an Action"):
-        self.buttons = buttons
-        self.title = title
-        self.pop_up_width = WIDTH // 2
-        self.pop_up_height = HEIGHT // 3
-        self.pop_up_x = (WIDTH - self.pop_up_width) // 2
-        self.pop_up_y = (HEIGHT - self.pop_up_height) // 2
-
-    def draw(self) -> str:
-        """
-        Draw the pop-up window with buttons and return the label of the clicked button.
-        """
-        rl.begin_drawing()
-
-        # Clear only the pop-up window area
-        rl.draw_rectangle(
-            self.pop_up_x, self.pop_up_y, self.pop_up_width, 
-            self.pop_up_height, rl.RAYWHITE)
-
-        # Draw the title at the top of the pop-up
-        title_width = rl.measure_text(self.title, 20)
-        rl.draw_text(self.title, self.pop_up_x + (self.pop_up_width - title_width) // 2, self.pop_up_y + 20, 20, rl.BLACK)
-
-        while True:          
-            rl.draw_rectangle_lines(
-                self.pop_up_x, self.pop_up_y, self.pop_up_width,
-                self.pop_up_height, rl.BLACK
-                )
-            # Draw each button and check for clicks
-            for button in self.buttons:
-                button.draw()
-                if button.is_clicked():
-                    rl.end_drawing()
-                    return button.option_text
-            rl.end_drawing()
-
-def combatButton(
-        text: str, x: int, y: int, 
-        width=200, height=50, button_color=rl.LIGHTGRAY,
-        font_size=20, text_color=rl.BLACK) -> bool:
-    button_rect = rl.Rectangle(x, y, width, height)
-
-    # Draw the button and its border
-    rl.draw_rectangle_rec(button_rect, button_color)
-    rl.draw_rectangle_lines_ex(button_rect, 2, rl.BLACK)
-
-    # Draw the text centered in the button
-    text_width = rl.measure_text(text, font_size)
-    text_x = x + (width - text_width) // 2
-    text_y = y + (height - font_size) // 2
-    rl.draw_text(text, text_x, text_y, font_size, text_color)
-
-    # Check if the button is clicked
-    mouse_x, mouse_y = rl.get_mouse_x(), rl.get_mouse_y()
-    is_hovered = (button_rect.x <= mouse_x <= button_rect.x + button_rect.width and
-                  button_rect.y <= mouse_y <= button_rect.y + button_rect.height)
-    return is_hovered and rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)
-
-
 def statBar(
         # REQUIRED
         stat_name: str, 
@@ -323,14 +265,6 @@ def statBar(
     # # Draw the filled portion of the bar
     rl.draw_rectangle(x, y + padding + font_size, int(width * percentage), height, bar_color)
 
-    # # Center the text within the bar
-    # text_value = f"{current_value}/{max_value}"
-    # text_width = rl.measure_text(text_value, font_size)
-    # text_x = x + (width - text_width) // 2
-    # text_y = y + (height - font_size) // 2
-    # rl.draw_text(text_value, text_x, text_y, font_size, font_color)
-
- 
 def slider(
         # REQUIRED
         x: int, 

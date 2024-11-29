@@ -1,4 +1,5 @@
-from utils.dclasses2 import Base_Power, Item, Target
+from utils.enums import Base_Power, Target
+from utils.dcs import Item
 
 # Cigarette: Increases the player's base slider
 Cigarette = Item(

@@ -1,0 +1,38 @@
+{
+	"nodes":[
+		{"id":"cabfd052b52b257d","type":"text","text":"MOVES DATA STRUCTURE\n\nName\nDescription\nassociated stat\nDamage\nEffect\nDoge Chance\nFlee Mod\nAOE bool\n\n\n","x":0,"y":0,"width":600,"height":285,"color":"#d3cfcf"},
+		{"id":"6977962be1972995","type":"text","text":"CREATURES DATA STRUCTURE:\n\nName\nHp\nSlider\nMoves\nAttack\nDefence\nSpeed\nSprites\n\n","x":-580,"y":0,"width":500,"height":260,"color":"#d3cfcf"},
+		{"id":"87dabc8e33271df0","type":"text","text":"![[Moves#**Sneak**]]","x":120,"y":684,"width":250,"height":295,"color":"#eb811e"},
+		{"id":"6a24ec6e4c205a60","type":"text","text":"![[Moves#**Disguise**]]#","x":425,"y":684,"width":250,"height":295,"color":"#eb811e"},
+		{"id":"7da52a915f265d93","type":"text","text":"![[Moves#**Pickpocket**]]","x":720,"y":686,"width":250,"height":293,"color":"#eb811e"},
+		{"id":"0766802456c7404e","type":"text","text":"![[Moves#**Maul**]]","x":720,"y":320,"width":250,"height":339,"color":"#eb811e"},
+		{"id":"42fb6800de493ae1","type":"text","text":"![[Moves#**Bite**#]]","x":425,"y":360,"width":250,"height":299,"color":"#eb811e"},
+		{"id":"6308097625a6e62b","type":"text","text":"[[Moves#Bear]]","x":-113,"y":513,"width":173,"height":50,"color":"#eb811e"},
+		{"id":"2224a51242ca2861","type":"text","text":"[[Moves#Criminal]]","x":-113,"y":686,"width":133,"height":74,"color":"#eb811e"},
+		{"id":"2c4ec76ff0a1e6aa","type":"text","text":"![[Moves#**Swipe**#]]","x":120,"y":360,"width":250,"height":299,"color":"#eb811e"},
+		{"id":"c3567a3618d3c7f6","type":"text","text":"![[Creatures#Bear]]","x":-500,"y":305,"width":340,"height":804,"color":"#eb811e"},
+		{"id":"badb62a2bdbf4e47","type":"text","text":"![[Creatures#Mall Cop]]","x":-497,"y":1186,"width":340,"height":680,"color":"4"},
+		{"id":"cf5f7d0597aabdf2","type":"text","text":"![[Moves#Pretend not to notice]]","x":265,"y":1109,"width":250,"height":387,"color":"4"},
+		{"id":"365321f4c1e13c40","type":"text","text":"![[Moves#Overreact]]","x":265,"y":1521,"width":250,"height":316,"color":"4"},
+		{"id":"8c119034a1cf36f2","type":"text","text":"![[Moves#Take a break]]","x":550,"y":1109,"width":250,"height":288,"color":"4"},
+		{"id":"d3a6a6a2126bd7d0","type":"text","text":"![[Moves#Spotlight]]","x":565,"y":1471,"width":250,"height":366,"color":"4"},
+		{"id":"1f4d2fd4dfed1ef2","type":"text","text":"[[Moves#Overzealous]]","x":-26,"y":1471,"width":157,"height":50,"color":"4"},
+		{"id":"862e2ed27fa1d4ee","type":"text","text":"[[Moves#Lazy]]","x":-26,"y":1186,"width":217,"height":63,"color":"4"}
+	],
+	"edges":[
+		{"id":"603d51a6e217a2e7","fromNode":"2c4ec76ff0a1e6aa","fromSide":"left","toNode":"6308097625a6e62b","toSide":"right"},
+		{"id":"b8c5aee1b940b0e0","fromNode":"42fb6800de493ae1","fromSide":"left","toNode":"6308097625a6e62b","toSide":"right"},
+		{"id":"24a733fe77cc6d0c","fromNode":"0766802456c7404e","fromSide":"left","toNode":"6308097625a6e62b","toSide":"right"},
+		{"id":"b10f9dfe2942121f","fromNode":"87dabc8e33271df0","fromSide":"left","toNode":"2224a51242ca2861","toSide":"right"},
+		{"id":"cae52fc1bf7a1ce4","fromNode":"6a24ec6e4c205a60","fromSide":"left","toNode":"2224a51242ca2861","toSide":"right"},
+		{"id":"f3570dc561b9c200","fromNode":"7da52a915f265d93","fromSide":"left","toNode":"2224a51242ca2861","toSide":"right"},
+		{"id":"073056b62d3f13ad","fromNode":"cf5f7d0597aabdf2","fromSide":"left","toNode":"862e2ed27fa1d4ee","toSide":"right"},
+		{"id":"27ea95e1da38ccf0","fromNode":"8c119034a1cf36f2","fromSide":"left","toNode":"862e2ed27fa1d4ee","toSide":"right"},
+		{"id":"add2308357bcd89c","fromNode":"365321f4c1e13c40","fromSide":"left","toNode":"1f4d2fd4dfed1ef2","toSide":"right"},
+		{"id":"14783b9c67215ac4","fromNode":"d3a6a6a2126bd7d0","fromSide":"left","toNode":"1f4d2fd4dfed1ef2","toSide":"right"},
+		{"id":"157af375ffba98b7","fromNode":"862e2ed27fa1d4ee","fromSide":"left","toNode":"badb62a2bdbf4e47","toSide":"right"},
+		{"id":"a8b2b7ca44fe5572","fromNode":"1f4d2fd4dfed1ef2","fromSide":"left","toNode":"badb62a2bdbf4e47","toSide":"right"},
+		{"id":"b0e011a8e5592bb2","fromNode":"6308097625a6e62b","fromSide":"left","toNode":"c3567a3618d3c7f6","toSide":"right"},
+		{"id":"29f7804b498bffc3","fromNode":"2224a51242ca2861","fromSide":"left","toNode":"c3567a3618d3c7f6","toSide":"right"}
+	]
+}

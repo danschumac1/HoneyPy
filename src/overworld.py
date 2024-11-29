@@ -5,8 +5,8 @@ Created on 11/22/2024
 TO RUN:
 python ./src/overworld.py
 """
-from utils.dclasses2 import GameState
 import raylibpy as rl
+from utils.enums import GameState
 
 def overworld(gs: GameState, WIDTH: int, HEIGHT: int):
     # Player setup
@@ -21,7 +21,9 @@ def overworld(gs: GameState, WIDTH: int, HEIGHT: int):
     target_y = HEIGHT // 3
 
     while gs == GameState.OVERWORLD:
-        # Handle input for player movement
+        rl.begin_drawing()
+        rl.clear_background(rl.RAYWHITE)
+
         if rl.is_key_down(rl.KEY_W):  # Move up
             player_y -= player_speed
         if rl.is_key_down(rl.KEY_S):  # Move down
@@ -40,10 +42,6 @@ def overworld(gs: GameState, WIDTH: int, HEIGHT: int):
         ):
             gs = GameState.BATTLE
 
-        # Drawing logic
-        rl.begin_drawing()
-        rl.clear_background(rl.RAYWHITE)
-
         # Draw player (red square)
         rl.draw_rectangle(player_x, player_y, PLAYER_SIZE, PLAYER_SIZE, rl.RED)
 
@@ -51,5 +49,4 @@ def overworld(gs: GameState, WIDTH: int, HEIGHT: int):
         rl.draw_rectangle(target_x, target_y, TARGET_SIZE, TARGET_SIZE, rl.ORANGE)
 
         rl.end_drawing()
-
     return gs

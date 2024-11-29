@@ -1,11 +1,11 @@
-from utils.dclasses2 import Creature2 as Creature
+from utils.dclasses2 import EnemyCreature, PlayerCreature
 from utils.items import Cigarette, Honey, Potion, Caltrops, FoamMiddleFinger
 from utils.skills import (
     bear_skills, criminal_skills, lazy_skills, overzealous_skills
 )
 
 # Grizzle: Bear vs. Criminal
-bear_criminal = Creature(
+bear_criminal = PlayerCreature(
     name="Grizzle",
     creature_type="bear",
     current_health=20, # XXX Should be 20
@@ -20,7 +20,7 @@ bear_criminal = Creature(
 )
 
 # Mall Cop: Lazy vs. Overzealous
-mall_cop = Creature(
+mall_cop = EnemyCreature(
     name="Baul Plart",
     creature_type="mall_cop",
     current_health=10, # XXX Should be 10
