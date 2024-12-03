@@ -7,46 +7,45 @@ python ./src/overworld.py
 """
 import raylibpy as rl
 from utils.enums import GameState
+from utils.constants import PLAYER_SIZE, TARGET_SIZE, PLAYER_SPEED, PLAYER_COLOR, TARGET_COLOR
+from utils.ovw_utils import check_collision, handle_player_movement
+from utils.window_config import WIDTH, HEIGHT
+from utils.dcs import Entity
 
-def overworld(gs: GameState, WIDTH: int, HEIGHT: int):
-    # Player setup
-    PLAYER_SIZE = WIDTH // 20
-    TARGET_SIZE = WIDTH // 20
-    player_x = WIDTH // 2
-    player_y = HEIGHT // 2
-    player_speed = 5
-
-    # Target setup (orange square)
-    target_x = WIDTH // 3
-    target_y = HEIGHT // 3
+def overworld(gs: GameState) -> GameState:
+    """
+    Handles the overworld gameplay state where the player can move 
+    and interact with a static target.
+    
+    Args:
+        gs (GameState): The current game state.
+        
+    Returns:
+        GameState: The next game state.
+    """
+    # Initialize player and target as entities
+    player = Entity(WIDTH // 2, HEIGHT // 2, PLAYER_SIZE)
+    target = Entity(WIDTH // 3, HEIGHT // 3, TARGET_SIZE)
 
     while gs == GameState.OVERWORLD:
+        if rl.window_should_close():  # Handle window close event
+            gs = GameState.QUIT
+            break
+
         rl.begin_drawing()
         rl.clear_background(rl.RAYWHITE)
 
-        if rl.is_key_down(rl.KEY_W):  # Move up
-            player_y -= player_speed
-        if rl.is_key_down(rl.KEY_S):  # Move down
-            player_y += player_speed
-        if rl.is_key_down(rl.KEY_A):  # Move left
-            player_x -= player_speed
-        if rl.is_key_down(rl.KEY_D):  # Move right
-            player_x += player_speed
+        # Handle player movement
+        handle_player_movement(player, PLAYER_SPEED)
 
         # Check for collision
-        if (
-            player_x < target_x + TARGET_SIZE and
-            player_x + PLAYER_SIZE > target_x and
-            player_y < target_y + TARGET_SIZE and
-            player_y + PLAYER_SIZE > target_y
-        ):
+        if check_collision(player, target):
             gs = GameState.BATTLE
 
-        # Draw player (red square)
-        rl.draw_rectangle(player_x, player_y, PLAYER_SIZE, PLAYER_SIZE, rl.RED)
-
-        # Draw target (orange square)
-        rl.draw_rectangle(target_x, target_y, TARGET_SIZE, TARGET_SIZE, rl.ORANGE)
+        # Draw player and target
+        rl.draw_rectangle(player.x, player.y, player.size, player.size, PLAYER_COLOR)
+        rl.draw_rectangle(target.x, target.y, target.size, target.size, TARGET_COLOR)
 
         rl.end_drawing()
+
     return gs

@@ -3,6 +3,12 @@ from dataclasses import dataclass
 from utils.enums import Target, Base_Power
 
 @dataclass
+class Entity:
+    x: int
+    y: int
+    size: int
+
+@dataclass
 class Skill:
     name: str                                                       # Skill name
     damage: int = 0                                                 # Damage dealt to the opponent
