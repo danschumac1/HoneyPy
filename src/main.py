@@ -3,7 +3,7 @@ Created on 11/22/2024
 
 @author: Dan
 TO RUN:
-python ./src/_main.py
+python ./src/main.py
 """
 import json
 from overworld import overworld
@@ -12,20 +12,23 @@ from main_menu import main_menu
 import raylibpy as rl
 from utils.enums import GameState
 from utils.creatures import create_bear_criminal, create_mall_cop
+from utils.window_config import initialize_window
 # from utils.helper_classes import print_once_per_second
-
 
 def main():
     print("Loading global params...")
-    params = json.loads(open("./resources/global_params.json").read())
-    WIDTH, HEIGHT = params["WIDTH"], params["HEIGHT"]
     pcs = [create_bear_criminal()]
     npcs = [
         create_mall_cop() for _ in range(3)
         ]
 
-    rl.init_window(WIDTH, HEIGHT, "HoneyPy")
-    rl.set_target_fps(60)
+    initialize_window()
+
+    state_handler = {
+        GameState.BATTLE: lambda gs: battle(gs, pcs, npcs),
+        GameState.MAIN_MENU: lambda gs: main_menu(gs),
+        GameState.OVERWORLD: lambda gs: overworld(gs)
+    }
 
     gs = GameState.MAIN_MENU
 
@@ -34,14 +37,8 @@ def main():
         rl.begin_drawing()
         rl.clear_background(rl.RAYWHITE)  # Always clear at the start of each frame
 
-        if gs == GameState.BATTLE:
-            gs = battle(gs, pcs, npcs)
-        elif gs == GameState.MAIN_MENU:
-            gs = main_menu(gs, WIDTH, HEIGHT)
-        elif gs == GameState.OVERWORLD:
-            gs = overworld(gs, WIDTH, HEIGHT)
-        elif gs == GameState.QUIT:
-            break  # Exit the loop immediately
+        if gs in state_handler:
+            gs = state_handler[gs](gs)
         else:
             print("Invalid game state")
             break

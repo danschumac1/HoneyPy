@@ -1,8 +1,11 @@
 import raylibpy as rl
 import random
 import time
-import json
 from typing import List, Tuple, Union
+from utils.window_config import WIDTH, HEIGHT, PADDING
+
+BUTTON_WIDTH = WIDTH // 10
+BUTTON_HEIGHT = HEIGHT // 20
 
 class DiceRoller:
     """A class to handle dice rolling animation with a spinning octagon and random numbers."""
@@ -126,14 +129,6 @@ def slider(
     rl.draw_text(base_name, x, y - font_size, font_size, rl.BLACK)
     rl.draw_text(power_name, x + width - rl.measure_text(power_name, font_size), y - font_size, font_size, rl.BLACK)
 
-# Load global parameters
-params = json.loads(open("./resources/global_params.json").read())
-WIDTH, HEIGHT = params["WIDTH"], params["HEIGHT"]
-
-BUTTON_WIDTH = WIDTH // 10
-BUTTON_HEIGHT = HEIGHT // 20
-PADDING = HEIGHT // 75
-
 def get_button_position(index: int, base_y: int = HEIGHT // 2) -> Tuple[int, int]:
     """
     Calculate button x and y positions based on index and base_y.
@@ -209,7 +204,23 @@ class Button:
     def is_clicked(self) -> bool:
         """Check if the button is clicked."""
         return self.is_hovered() and rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)
-
+    
+def create_buttons(button_specs, width, height, padding):
+    """
+    Create a list of Button objects based on the provided specifications.
+    Args:
+        button_specs (list of tuples): A list of tuples where each tuple contains a label (str) and an offset (int).
+        width (int): The width of the area where the buttons will be placed.
+        height (int): The height of the area where the buttons will be placed.
+        padding (int): The padding between buttons.
+    Returns:
+        list: A list of Button objects created based on the provided specifications.
+    """
+    
+    return [
+        Button(label, width // 2 - BUTTON_WIDTH // 2, height // 2 + offset * padding)
+        for label, offset in button_specs
+    ]
 def statBar(
         # REQUIRED
         stat_name: str, 
