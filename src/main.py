@@ -11,7 +11,7 @@ from battle import battle
 from main_menu import main_menu
 import raylibpy as rl
 from utils.enums import GameState
-from utils.creatures import bear_criminal, mall_cop
+from utils.creatures import create_bear_criminal, create_mall_cop
 # from utils.helper_classes import print_once_per_second
 
 
@@ -19,8 +19,10 @@ def main():
     print("Loading global params...")
     params = json.loads(open("./resources/global_params.json").read())
     WIDTH, HEIGHT = params["WIDTH"], params["HEIGHT"]
-    pcs = [bear_criminal]
-    npcs = [mall_cop, mall_cop, mall_cop]
+    pcs = [create_bear_criminal()]
+    npcs = [
+        create_mall_cop() for _ in range(3)
+        ]
 
     rl.init_window(WIDTH, HEIGHT, "HoneyPy")
     rl.set_target_fps(60)

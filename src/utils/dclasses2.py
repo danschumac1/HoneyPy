@@ -197,6 +197,8 @@ class Creature(ABC):
 
             # If the roll is successful, apply the skill's effects
             if success:
+                self.power_int += 1
+                self.base_int -=1
                 extra = 1 if over_under >= 2 else 0  # Extra effect if roll is significantly successful
                 for target in cm.selected_target:
                     # Apply damage (if applicable)
@@ -233,6 +235,8 @@ class Creature(ABC):
                         cm.new_message = True
                         cm.stage = BattleStage.WRAP_UP
             else:
+                self.base_int += 1
+                self.power_int -= 1
                 cm.message = f"{self.name} rolled too high!"
                 cm.new_message = True
                 cm.stage = BattleStage.WRAP_UP
@@ -620,65 +624,109 @@ class PlayerCreature(Creature):
                 cm.message = f"{self.name} uses {cm.selected_skill.name} on themselves!"
                 cm.new_message = True
                 return cm
-            if cm.selected_skill.target == Target.AOE:
+            elif cm.selected_skill.target == Target.AOE:
                 # select all possible targets
                 cm.selected_target = cm.enemy_targets
                 cm.stage = BattleStage.ROLL_DICE
                 cm.message = f"{self.name} uses {cm.selected_skill.name} on all enemies!"
                 cm.new_message = True
                 return cm
-        if cm.selected_item:
+            elif cm.selected_skill.target == Target.SINGLE:
+                for idx, target in enumerate(self.possible_targets):
+                    # Calculate button position
+                    button_x = start_x + idx * (button_width + padding)
+                    button_y = start_y
+
+                    # Get mouse position
+                    mouse_x, mouse_y = rl.get_mouse_position()
+
+                    # Check if the mouse is hovering over the button
+                    is_hovered = (
+                        button_x <= mouse_x <= button_x + button_width
+                        and button_y <= mouse_y <= button_y + button_height
+                    )
+
+                    button_color = rl.color_from_hsv(0, 0, 0.92) if not is_hovered else rl.color_from_hsv(0, 0, 0.95)
+                    # draw an outline around the enemy stats 
+                    
+                    button = Button(
+                        option_text=target.name, 
+                        x=button_x, 
+                        y=button_y, 
+                        width=button_width, 
+                        height=button_height, 
+                        button_color=button_color
+                    )
+                    button.draw()
+
+                    if is_hovered and rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
+                        # Return the selected target
+                        cm.selected_target = [target]
+                        if cm.selected_skill:
+                            cm.message = f"{self.name} uses {cm.selected_skill.name} on {target.name}!"
+                            cm.new_message = True
+                        if cm.selected_item:
+                            cm.message = f"{self.name} uses {cm.selected_item.name} on {target.name}!"
+                            cm.new_message = True
+                        # move onto the next stage
+                        cm.stage = BattleStage.ROLL_DICE
+                        return cm
+        elif cm.selected_item:
             if cm.selected_item.target == Target.SELF:
                 cm.selected_target = [self]
                 cm.stage = BattleStage.USE_SKILL_ITEM
                 cm.message = f"{self.name} uses {cm.selected_item.name} on themselves!"
                 cm.new_message = True
                 return cm
-            if cm.selected_item.target == Target.AOE:
+            elif cm.selected_item.target == Target.AOE:
                 # select all possible targets
                 cm.selected_target = cm.enemy_targets
                 cm.stage = BattleStage.USE_SKILL_ITEM
                 cm.message = f"{self.name} uses {cm.selected_item.name} on all enemies!"
                 return cm
+            elif cm.selected_item.target == Target.SINGLE:
+                for idx, target in enumerate(self.possible_targets):
+                    # Calculate button position
+                    button_x = start_x + idx * (button_width + padding)
+                    button_y = start_y
 
+                    # Get mouse position
+                    mouse_x, mouse_y = rl.get_mouse_position()
+
+                    # Check if the mouse is hovering over the button
+                    is_hovered = (
+                        button_x <= mouse_x <= button_x + button_width
+                        and button_y <= mouse_y <= button_y + button_height
+                    )
+
+                    button_color = rl.color_from_hsv(0, 0, 0.92) if not is_hovered else rl.color_from_hsv(0, 0, 0.95)
+                    # draw an outline around the enemy stats 
+                    
+                    button = Button(
+                        option_text=target.name, 
+                        x=button_x, 
+                        y=button_y, 
+                        width=button_width, 
+                        height=button_height, 
+                        button_color=button_color
+                    )
+                    button.draw()
+
+                    if is_hovered and rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
+                        # Return the selected target
+                        cm.selected_target = [target]
+                        if cm.selected_skill:
+                            cm.message = f"{self.name} uses {cm.selected_skill.name} on {target.name}!"
+                            cm.new_message = True
+                        if cm.selected_item:
+                            cm.message = f"{self.name} uses {cm.selected_item.name} on {target.name}!"
+                            cm.new_message = True
+                        # move onto the next stage
+                        cm.stage = BattleStage.USE_SKILL_ITEM
+                        return cm
+            
         # Display the target selection box
-        for idx, target in enumerate(self.possible_targets):
-            # Calculate button position
-            button_x = start_x + idx * (button_width + padding)
-            button_y = start_y
-
-            # Get mouse position
-            mouse_x, mouse_y = rl.get_mouse_position()
-
-            # Check if the mouse is hovering over the button
-            is_hovered = (
-                button_x <= mouse_x <= button_x + button_width
-                and button_y <= mouse_y <= button_y + button_height
-            )
-            button_color = rl.color_from_hsv(0, 0, 0.92) if not is_hovered else rl.color_from_hsv(0, 0, 0.95)
-
-            button = Button(
-                option_text=target.name, 
-                x=button_x, 
-                y=button_y, 
-                width=button_width, 
-                height=button_height, 
-                button_color=button_color
-            )
-            button.draw()
-
-            if is_hovered and rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
-                # Return the selected target
-                cm.selected_target = [target]
-                if cm.selected_skill:
-                    cm.message = f"{self.name} uses {cm.selected_skill.name} on {target.name}!"
-                    cm.new_message = True
-                if cm.selected_item:
-                    cm.message = f"{self.name} uses {cm.selected_item.name} on {target.name}!"
-                    cm.new_message = True
-                # move onto the next stage
-                cm.stage = BattleStage.ROLL_DICE
-                return cm
+        
         return cm
 
     def select_item(
@@ -770,54 +818,59 @@ class PlayerCreature(Creature):
                 return cm
         return cm
 
-    def use_skill(self, cm:ChoiceManager):
-        """Use the selected skill on the target(s) asynchronously."""
-        # Roll the dice asynchronously
-        success, over_under = self.roll_success(cm)
+    # def use_skill(self, cm:ChoiceManager):
+    #     """Use the selected skill on the target(s) asynchronously."""
+    #     # Roll the dice asynchronously
+    #     success, over_under = self.roll_success(cm)
 
-        # If the roll is successful, apply the skill's effects
-        if success:
-            extra = 1 if over_under >= 2 else 0  # Extra effect if roll is significantly successful
-            for target in cm.selected_target:
-                # Apply damage (if applicable)
-                if cm.selected_skill.damage > 0:
-                    effective_damage = cm.selected_skill.damage + max(0, over_under)
-                    target.current_health = max(0, target.current_health - effective_damage)
-                    cm.message = \
-                        f"{self.name} deals {effective_damage} damage to {target.name}!"
-                    cm.new_message = True
-                    cm.stage = BattleStage.WRAP_UP
+        # # If the roll is successful, apply the skill's effects
+        # if success:
+        #     self.power_int += 1
+        #     self.base_int -= 1
+        #     extra = 1 if over_under >= 2 else 0  # Extra effect if roll is significantly successful
+        #     for target in cm.selected_target:
+        #         # Apply damage (if applicable)
+        #         if cm.selected_skill.damage > 0:
+        #             effective_damage = cm.selected_skill.damage + max(0, over_under)
+        #             target.current_health = max(0, target.current_health - effective_damage)
 
-                # Apply healing (if applicable)
-                if cm.selected_skill.healing > 0:
-                    effective_healing = cm.selected_skill.healing + max(0, over_under)
-                    self.current_health = min(self.max_health, self.current_health + effective_healing)
-                    cm.message = \
-                        f"{self.name} heals for {effective_healing} HP!"
-                    cm.new_message = True
-                    cm.stage = BattleStage.WRAP_UP
+        #             cm.message = \
+        #                 f"{self.name} deals {effective_damage} damage to {target.name}!"
+        #             cm.new_message = True
+        #             cm.stage = BattleStage.WRAP_UP
 
-                # Apply slider effect (if applicable)
-                if cm.selected_skill.slider_effect != 0:
-                    target.roll_modifier += cm.selected_skill.slider_effect + extra
-                    cm.message = \
-                        f"{target.name}'s roll modifier adjusted by {cm.selected_skill.slider_effect + extra}!"
-                    cm.new_message = True
-                    cm.stage = BattleStage.WRAP_UP
+        #         # Apply healing (if applicable)
+        #         if cm.selected_skill.healing > 0:
+        #             effective_healing = cm.selected_skill.healing + max(0, over_under)
+        #             self.current_health = min(self.max_health, self.current_health + effective_healing)
+        #             cm.message = \
+        #                 f"{self.name} heals for {effective_healing} HP!"
+        #             cm.new_message = True
+        #             cm.stage = BattleStage.WRAP_UP
 
-                # Apply next roll modifier (if applicable)
-                if cm.selected_skill.roll_modifier != 0:
-                    target.roll_modifier += cm.selected_skill.roll_modifier + extra
-                    cm.message = \
-                        f"{target.name}'s next roll modifier adjusted by {cm.selected_skill.roll_modifier + extra}!"
-                    cm.new_message = True
-                    cm.stage = BattleStage.WRAP_UP
-        else:
-            cm.message = f"{self.name} rolled too high!"
-            cm.new_message = True
-            cm.stage = BattleStage.WRAP_UP
-        # Reset the choice manager
-        return cm
+        #         # Apply slider effect (if applicable)
+        #         if cm.selected_skill.slider_effect != 0:
+        #             target.roll_modifier += cm.selected_skill.slider_effect + extra
+        #             cm.message = \
+        #                 f"{target.name}'s roll modifier adjusted by {cm.selected_skill.slider_effect + extra}!"
+        #             cm.new_message = True
+        #             cm.stage = BattleStage.WRAP_UP
+
+        #         # Apply next roll modifier (if applicable)
+        #         if cm.selected_skill.roll_modifier != 0:
+        #             target.roll_modifier += cm.selected_skill.roll_modifier + extra
+        #             cm.message = \
+        #                 f"{target.name}'s next roll modifier adjusted by {cm.selected_skill.roll_modifier + extra}!"
+        #             cm.new_message = True
+        #             cm.stage = BattleStage.WRAP_UP
+        # else:
+        #     self.power_int -= 1
+        #     self.base_int += 1
+        #     cm.message = f"{self.name} rolled too high!"
+        #     cm.new_message = True
+        #     cm.stage = BattleStage.WRAP_UP
+        # # Reset the choice manager
+        # return cm
     
     def use_item(self, cm:ChoiceManager):
         """Use the selected item on the target(s) asynchronously."""
@@ -866,8 +919,6 @@ class EnemyCreature(Creature):
             cm.selected_skill_or_item_choice = random.choice([Skill_Item.SKILL, Skill_Item.ITEM])
         else:
             cm.selected_skill_or_item_choice = Skill_Item.SKILL
-        cm.message = f"{self.name} will use a {cm.selected_skill_or_item_choice.name}!"
-        cm.new_message = True
         cm.stage = BattleStage.SELECT_SKILL_TYPE
         return cm
 
@@ -876,8 +927,6 @@ class EnemyCreature(Creature):
             width, height) -> ChoiceManager:
         cm.selected_skill_type = random.choice([Base_Power.BASE, Base_Power.POWER])
         cm.stage = BattleStage.SELECT_SKILL
-        cm.message = f"{self.name} will use a {cm.selected_skill_type.name} skill!"
-        cm.new_message = True
         return cm
 
     def select_skill(
@@ -892,7 +941,7 @@ class EnemyCreature(Creature):
         cm.selected_skill = random.choice(skills_list)
         cm.stage = BattleStage.SELECT_TARGET
         cm.message = f"{self.name} will use {cm.selected_skill.name}!"
-        cm.new_message = True
+        # cm.new_message = True
         return cm
 
     def select_target(
@@ -933,6 +982,7 @@ class EnemyCreature(Creature):
                 cm.selected_target = cm.enemy_targets
                 cm.stage = BattleStage.USE_SKILL_ITEM
                 cm.message = f"{self.name} uses {cm.selected_item.name} on all enemies!"
+                cm.new_message = True   
                 return cm
 
         # Display the target selection box
@@ -953,4 +1003,5 @@ class EnemyCreature(Creature):
             self.inventory.remove(cm.selected_item)
         cm.stage = BattleStage.SELECT_TARGET
         cm.message = f"{self.name} will use {cm.selected_item.name}!"
+        cm.new_message = True
         return cm
