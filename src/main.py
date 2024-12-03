@@ -3,7 +3,7 @@ Created on 11/22/2024
 
 @author: Dan
 TO RUN:
-python ./src/_main.py
+python ./src/main.py
 """
 import json
 from overworld import overworld
@@ -13,7 +13,6 @@ import raylibpy as rl
 from utils.enums import GameState
 from utils.creatures import create_bear_criminal, create_mall_cop
 # from utils.helper_classes import print_once_per_second
-
 
 def main():
     print("Loading global params...")
