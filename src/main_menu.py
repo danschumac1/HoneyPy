@@ -9,11 +9,20 @@ import os
 import raylibpy as rl
 from utils.enums import GameState
 from utils.buttons_etc import create_buttons
-from utils.window_config import WIDTH, HEIGHT, PADDING
-from utils.text_utils import load_font, draw_centered_text, unload_font
+from utils.constants import WIDTH, HEIGHT, PADDING
+from utils.text_utils import load_font, draw_centered_text
 
 
 def main_menu(gs) -> GameState:
+    '''
+    Displays the main menu and handles user interactions.
+    Args:
+        gs (GameState): The current game state.
+    Returns:
+        GameState: The updated game state after handling user input.
+    The main menu includes options to start the game or quit. It loads the necessary font,
+    creates buttons for the menu options, and handles user interactions to update the game state.
+    '''
     font = load_font()  # Load the font for the main menu
     button_specs = [("Start", -1), ("Quit", 1)]
     buttons = create_buttons(button_specs, WIDTH, HEIGHT, PADDING)
@@ -37,5 +46,5 @@ def main_menu(gs) -> GameState:
 
         rl.end_drawing()
 
-    unload_font(font)  # Unload the font to free memory
+    rl.unload_font(font)  # Unload the font to free memory
     return gs

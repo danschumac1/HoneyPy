@@ -1,4 +1,5 @@
 import raylibpy as rl
+from utils.text_utils import load_font
 
 PLAYER_SIZE = 40
 TARGET_SIZE = 40
@@ -8,3 +9,9 @@ HEIGHT = 750
 PADDING = HEIGHT // 25
 PLAYER_COLOR = rl.RED
 TARGET_COLOR = rl.ORANGE
+BUTTON_WIDTH = WIDTH // 10
+BUTTON_HEIGHT = HEIGHT // 20
+VISION_FOV = 75  # degrees
+VISION_RANGE = WIDTH // 3
+SEMI_TRANSPARENT_RED = rl.Color(255, 0, 0, 100)
+SEMI_TRANSPARENT_YELLOW = rl.Color(255, 255, 0, 100)

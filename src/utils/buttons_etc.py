@@ -2,11 +2,7 @@ import raylibpy as rl
 import random
 import time
 from typing import List, Tuple, Union
-from utils.window_config import WIDTH, HEIGHT, PADDING
-
-BUTTON_WIDTH = WIDTH // 10
-BUTTON_HEIGHT = HEIGHT // 20
-
+from utils.constants import WIDTH, HEIGHT, PADDING, BUTTON_WIDTH, BUTTON_HEIGHT
 class DiceRoller:
     """A class to handle dice rolling animation with a spinning octagon and random numbers."""
     def __init__(self, x: int, y: int, size: int, roll_duration: int = 1):

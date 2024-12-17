@@ -73,6 +73,7 @@ def draw_ascii_art_box(ascii_art:str, font: rl.Font, box: rl.Rectangle, color=rl
 
         # Draw the line
         rl.draw_text_ex(font, line, rl.Vector2(start_x, line_y), font_size, 2, color)
+        
 def draw_battle_log_box(cm: ChoiceManager, battle_log, line_spacing=4, font_size=15):
     """Draw the battle log box showing only the last messages that fit."""
     if cm.new_message:
@@ -167,15 +168,12 @@ def draw_battle_log_box(cm: ChoiceManager, battle_log, line_spacing=4, font_size
         )
         current_line_y += font_size + line_spacing
 
-
-
 def draw_dice_box(pc: Creature):
     dice_box = rl.Rectangle(
         DI_BOX.x, DI_BOX.y, DI_BOX.width, DI_BOX.height
     )
     rl.draw_rectangle_rec(dice_box, rl.LIGHTGRAY)
     pc.dice_roller.update_and_draw()
-
 
 def draw_player_stats_box(pc:Creature):
     player_stats_box = rl.Rectangle(
@@ -204,3 +202,53 @@ def draw_enemy_stats_box(npcs:List[Creature]):
         width=ES_BOX.width - 2 * padding,                   # pad on left and right
         height=(ES_BOX.height // 3) - 2 * padding           # up to 3 enemies
         )
+
+def draw_ascii_art_for_creatures(creatures: List[Creature], font, box, padding: int = 10):
+    """
+    Draws ASCII art for a list of creatures within a specified box, dynamically adjusting the height and centering,
+    with highlighting for the current turn or hovered creatures.
+
+    Args:
+        creatures (List[Creature]): List of creatures to draw.
+        font (rl.Font): The font to use for the ASCII art.
+        box (rl.Rectangle): The overall box where the ASCII art will be drawn.
+        padding (int): Padding between each creature's box.
+    """
+    # Calculate dynamic base height based on the number of alive creatures
+    num_creatures = sum(creature.is_alive for creature in creatures)
+    if num_creatures == 0:
+        return
+
+    total_padding = (num_creatures - 1) * padding
+    base_height = (box.height - total_padding) // num_creatures
+
+    # Draw black background for the entire box
+    rl.draw_rectangle_rec(
+        rec=rl.Rectangle(box.x, box.y, box.width, box.height),
+        color=rl.BLACK
+    )
+
+    for i, creature in enumerate(creatures):
+        if creature.is_alive:
+            # Determine the highlight color
+            highlight_color = \
+                rl.GREEN if creature.is_player and creature.is_light_up \
+                    else rl.RED if not creature.is_player and creature.is_light_up \
+                        else rl.WHITE
+
+            # Calculate the current box position and size
+            current_box = rl.Rectangle(
+                box.x,
+                box.y + i * (base_height + padding),
+                box.width,
+                base_height
+            )
+
+            # Draw the creature's ASCII art with the appropriate highlight color
+
+            draw_ascii_art_box(
+                ascii_art=creature.ascii_art['default'],
+                font=font,
+                box=current_box,
+                color=highlight_color
+            )
