@@ -1,0 +1,11 @@
+[INFO] 	Player at 
+	(420, 420), 
+	Speed: 5, 	FOV: 75, Range: 400, 
+	Rotation: 0.00°, 
+	Player in Sight: False || 2024-12-17 00:13:43
+[INFO] 	Enemy at 
+	(120, 120), 
+	Speed: 1, 	FOV: 75, Range: 400, 
+	Rotation: 0.00°, 
+	Player in Sight: False || 2024-12-17 00:13:43
+[INFO] Starting overworld gameplay loop || 2024-12-17 00:13:43

@@ -1,4 +1,6 @@
 from enum import Enum
+class Shader(Enum):
+    pass
 class Target(Enum):
     SELF = 1
     SINGLE = 2

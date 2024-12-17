@@ -5,10 +5,10 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Union
 import raylibpy as rl
 from utils.buttons_etc import Button, DiceRoller, slider, statBar
-from utils.dclasses2_backup import Item, Skill
 from utils.enums import Base_Power, BattleStage, Skill_Item, Target
 from utils.helper_classes import load_ascii_art
 from utils.window_config import CHOICE_BOX, DI_BOX
+from utils.dcs import Skill, Item
 
 params = json.loads(open("./resources/global_params.json").read())
 WIDTH, HEIGHT = params["WIDTH"], params["HEIGHT"] 

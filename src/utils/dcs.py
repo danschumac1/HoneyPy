@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from utils.constants import WIDTH, HEIGHT
 from utils.enums import Target, Base_Power
 
 # Quadrant boundaries
@@ -10,11 +10,13 @@ class XYWH:
     width: int
     height: int
 
-@dataclass
-class Entity:
-    x: int
-    y: int
-    size: int
+class Entity():
+    def __init__(self, x: int, y: int, size: int, tag: str = "UNDEFINED"):
+        # turn x and y into percentages of the screen
+        self.x = x * WIDTH // 100
+        self.y = y * WIDTH // 100
+        self.size = size * WIDTH // 100
+        self.tag = tag
 
 @dataclass
 class Skill:

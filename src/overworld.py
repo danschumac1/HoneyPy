@@ -8,26 +8,35 @@ python ./src/overworld.py
 import raylibpy as rl
 from utils.enums import GameState
 from utils.constants import PLAYER_SIZE, TARGET_SIZE, PLAYER_SPEED, PLAYER_COLOR, TARGET_COLOR
-from utils.ovw_utils import EnemyOverworldCreature, PlayerOverworldCreature #, check_collision, handle_player_movement, draw_vision_cone, is_player_in_vision_cone # , is_player_in_vision_cone
+from utils.visual_fx import VisualEffect, VisualEffectsManager
 from utils.window_config import WIDTH, HEIGHT
 from utils.dcs import Entity
-print(f"Screen Width: {WIDTH}, Screen Height: {HEIGHT}")
+from utils.logging import Logger
+from utils.ovw_creatures import player, enemy
 
 def overworld(gs: GameState) -> GameState:
-    # Initialize player and enemy
-    player_entity = Entity(WIDTH // 2, HEIGHT // 2, PLAYER_SIZE)
-    player = PlayerOverworldCreature(player_entity, speed=PLAYER_SPEED)
+    logger = Logger(
+        log_path="logs/overworld.log",
+    )
+    effects_manager = VisualEffectsManager()
 
-    enemy_entity = Entity(WIDTH // 3, HEIGHT // 3, TARGET_SIZE)
-    enemy = EnemyOverworldCreature(enemy_entity)
+    # Add some initial effects
+    effects_manager.add_effect(VisualEffect.RAIN)
+    # effects_manager.add_effect(VisualEffect.FIREFLIES)
+    # effects_manager.add_effect(VisualEffect.LEAVES)
 
+
+    logger.info(player)
+    logger.info(enemy)
+
+    logger.info("Starting overworld gameplay loop")
     while gs == GameState.OVERWORLD:
         if rl.window_should_close():
             gs = GameState.QUIT
             break
 
         rl.begin_drawing()
-        rl.clear_background(rl.RAYWHITE)
+        rl.clear_background(rl.BLACK)
 
         # Handle player movement
         player.handle_movement()
@@ -45,54 +54,7 @@ def overworld(gs: GameState) -> GameState:
         if enemy.check_collision(player.entity):
             gs = GameState.BATTLE
 
+        effects_manager.update_and_draw()
         rl.end_drawing()
 
     return gs
-
-
-# def overworld(gs: GameState) -> GameState:
-#     """
-#     Handles the overworld gameplay state where the player can move 
-#     and interact with a static target.
-    
-#     Args:
-#         gs (GameState): The current game state.
-        
-#     Returns:
-#         GameState: The next game state.
-#     """
-#     # Initialize player and target as entities
-#     player = Entity(WIDTH // 2, HEIGHT // 2, PLAYER_SIZE)
-#     enemy = Entity(WIDTH // 3, HEIGHT // 3, TARGET_SIZE)
-
-#     while gs == GameState.OVERWORLD:
-#         if rl.window_should_close():  # Handle window close event
-#             gs = GameState.QUIT
-#             break
-
-#         rl.begin_drawing()
-
-#         rl.clear_background(rl.BLACK)
-#                 # Draw enemy vision cone
-#         draw_vision_cone(enemy) 
-
-#         # Handle player movement
-#         handle_player_movement(player, PLAYER_SPEED)
-
-#         # Check for collision
-#         if check_collision(player, enemy):
-#             gs = GameState.BATTLE
-
-
-#         # Check if player is in the enemy's vision cone
-#         if is_player_in_vision_cone(player, enemy):
-#             rl.draw_text("Player Detected!", 10, 10, 20, rl.RED)
-
-#         # Draw player and target
-#         rl.draw_rectangle(player.x, player.y, player.size, player.size, PLAYER_COLOR)
-#         rl.draw_rectangle(enemy.x, enemy.y, enemy.size, enemy.size, TARGET_COLOR)
-
-
-#         rl.end_drawing()
-
-#     return gs

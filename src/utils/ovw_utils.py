@@ -1,11 +1,20 @@
-import raylibpy as rl
-
 import math
 import raylibpy as rl
 from abc import ABC, abstractmethod
 from utils.dcs import Entity
 from utils.constants import (
-    VISION_FOV, VISION_RANGE, SEMI_TRANSPARENT_YELLOW, SEMI_TRANSPARENT_RED)
+    WIDTH, HEIGHT, VISION_FOV, VISION_RANGE, SEMI_TRANSPARENT_YELLOW, SEMI_TRANSPARENT_RED)
+
+def bind_to_screen(entity: Entity, width: int=WIDTH, height: int=HEIGHT):
+    """Bind the entity to the screen by adjusting its position."""
+    if entity.x < 0:
+        entity.x = 0
+    if entity.x + entity.size > width:
+        entity.x = width - entity.size
+    if entity.y < 0:
+        entity.y = 0
+    if entity.y + entity.size > height:
+        entity.y = height - entity.size
 
 class OverworldCreature(ABC):
     def __init__(
@@ -21,6 +30,28 @@ class OverworldCreature(ABC):
         self.rotation_angle = rotation_angle
         self.player_in_sight = False
         self.is_player = False
+    def __repr__(self):
+        """Detailed string representation for debugging purposes."""
+        return (
+            f"{self.__class__.__name__}\n"
+            f"entity={self.entity},\n"
+            f"speed={self.speed},\n"
+            f"fov={self.fov}, \n"
+            f"range={self.range},\n"
+            f"rotation_angle={self.rotation_angle},\n"
+            f"player_in_sight={self.player_in_sight},\n"
+            f"is_player={self.is_player})"
+        )
+
+    def __str__(self):
+        """User-friendly string representation."""
+        return (
+            f"\t{'Player' if self.is_player else 'Enemy'} at \n"
+            f"\t({self.entity.x}, {self.entity.y}), \n"
+            f"\tSpeed: {self.speed}, \tFOV: {self.fov}, Range: {self.range}, \n"
+            f"\tRotation: {self.rotation_angle:.2f}°, \n"
+            f"\tPlayer in Sight: {self.player_in_sight}"
+        )
 
     def draw_vision_cone(self):
         """
@@ -70,7 +101,6 @@ class OverworldCreature(ABC):
             self.entity.y > other.y + other.size or  # Corrected typo
             self.entity.y + self.entity.size < other.y
         )
-
     
     @abstractmethod
     def handle_movement(self):
@@ -90,6 +120,8 @@ class PlayerOverworldCreature(OverworldCreature):
             self.entity.x -= self.speed
         if rl.is_key_down(rl.KEY_D):  # Move right
             self.entity.x += self.speed
+
+        bind_to_screen(self.entity)
 
 class EnemyOverworldCreature(OverworldCreature):
     def __init__(self, entity: Entity, speed: float = 1, fov: float = VISION_FOV, view_range: float = VISION_RANGE, rotation_angle: float = 0):
@@ -152,10 +184,8 @@ class EnemyOverworldCreature(OverworldCreature):
         self.entity.x += dx * step_size
         self.entity.y += dy * step_size
 
-
-
     def give_up(self, player: Entity):
-        """Return to patrol if the player is out of range."""
+        """Return to apatrol if the player is out of range."""
         distance_to_player = math.hypot(player.x - self.entity.x, player.y - self.entity.y)
         if distance_to_player > self.give_up_distance:
             self.player_in_sight = False

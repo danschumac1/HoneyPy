@@ -1,0 +1,14 @@
+
+========================================
+New Run at 2024-12-17 00:13:42
+========================================
+[INFO] Loaded global parameters
+PCS: {[pc.name for pc in pcs]}
+NPCS: {[npc.name for npc in npcs]} || 2024-12-17 00:13:42
+[INFO] Starting game loop || 2024-12-17 00:13:42
+[INFO] Current game state: GameState.MAIN_MENU || 2024-12-17 00:13:42
+[INFO] Current game state: GameState.OVERWORLD || 2024-12-17 00:13:43
+[ERROR] Invalid game state: GameState.QUIT || 2024-12-17 00:14:05
+[INFO] Game loop exited || 2024-12-17 00:14:05
+[INFO] Unloaded font || 2024-12-17 00:14:05
+[INFO] Closed window || 2024-12-17 00:14:05
