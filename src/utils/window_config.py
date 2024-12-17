@@ -1,25 +1,12 @@
 import json
 from dataclasses import dataclass
 import raylibpy as rl
-
-params = json.loads(open("./resources/global_params.json").read())
-WIDTH, HEIGHT = params["WIDTH"], params["HEIGHT"]
-PADDING = HEIGHT // 25
-
+from utils.constants import WIDTH, HEIGHT
+from utils.dcs import XYWH
 
 def initialize_window():
-    params = json.loads(open("./resources/global_params.json").read())
-    WIDTH, HEIGHT = params["WIDTH"], params["HEIGHT"]
     rl.init_window(WIDTH, HEIGHT, "HoneyPy")
     rl.set_target_fps(60)
-
-# Quadrant boundaries
-@dataclass
-class XYWH:
-    x: int
-    y: int
-    width: int
-    height: int
 
 PART_BOX = XYWH(
     x=0, 

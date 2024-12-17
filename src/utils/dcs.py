@@ -2,6 +2,14 @@ from dataclasses import dataclass
 
 from utils.enums import Target, Base_Power
 
+# Quadrant boundaries
+@dataclass
+class XYWH:
+    x: int
+    y: int
+    width: int
+    height: int
+
 @dataclass
 class Entity:
     x: int
